@@ -140,7 +140,7 @@
 
   </div>
 
-  <!-- MODAL 1: CREAR/EDITAR PRODUCTO -->
+  <!-- MODAL 1: CREAR/EDITAR PRODUCTO (CORREGIDO Y ORDENADO) -->
   <div id="productModal" class="modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -149,10 +149,14 @@
       </div>
       <form onsubmit="saveProduct(event)">
         <input type="hidden" id="prodId">
+        
+        <!-- Nombre del Producto -->
         <div class="form-group">
           <label>Nombre del Producto</label>
           <input type="text" id="prodName" class="form-control" required placeholder="Ej. Piñata Tambor de Mickey">
         </div>
+
+        <!-- Categoría e Icono -->
         <div class="form-row">
           <div class="form-group">
             <label>Categoría</label>
@@ -164,15 +168,48 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Icono / Emoji</label>
-            <input type="text" id="prodIcon" class="form-control" value="🪅" required>
-          </div>
+<div class="form-group">
+  <label>Icono / Emoji</label>
+  <select id="prodIcon" class="form-control" required>
+    <!-- Categoría Piñatas y Fiesta -->
+    <option value="🪅">🪅 Piñata Estrella / Tradicional</option>
+    <option value="🎉">🎉 Fiesta / Cañón de confeti</option>
+    <option value="🎈">🎈 Globo</option>
+    <option value="🎁">🎁 Regalo / Sorpresa</option>
+    <option value="👑">👑 Corona / Princesa</option>
+    <option value="🥳">🥳 Gorro de Fiesta</option>
+    
+    <!-- Categoría Dulces y Rellenos -->
+    <option value="🍬">🍬 Dulce / Caramelo</option>
+    <option value="🍭">🍭 Paleta / Chupetón</option>
+    <option value="🍫">🍫 Chocolate</option>
+    <option value="🍿">🍿 Crispetas / Palomitas</option>
+    <option value="🧁">🧁 Cupcake / Ponqué</option>
+    
+    <!-- Categoría Temáticas -->
+    <option value="🛡️">🛡️ Superhéroe / Vengadores</option>
+    <option value="🦄">🦄 Unicornio</option>
+    <option value="🦖">🦖 Dinosaurio</option>
+    <option value="🚀">🚀 Espacio / Cohete</option>
+    <option value="⚽">⚽ Deportes / Pelotas</option>
+    
+    <!-- Categoría Decoración y Desechables -->
+    <option value="🍽️">🍽️ Vajilla / Desechables</option>
+    <option value="🥤">🥤 Vasos / Bebidas</option>
+    <option value="🎀">🎀 Moños / Decoración</option>
+  </select>
+</div>  
+</div>
         </div>
+
+        <!-- Precio (Ocupa su propia fila completa) -->
+        <div class="form-group">
+          <label>Precio (COP)</label>
+          <input type="number" id="prodPrice" class="form-control" min="0" required placeholder="35000">
+        </div>
+
+        <!-- Stock Mínimo y Stock Inicial en fila de 2 columnas -->
         <div class="form-row">
-          <div class="form-group">
-            <label>Precio (COP)</label>
-            <input type="number" id="prodPrice" class="form-control" min="0" required placeholder="35000">
-          </div>
           <div class="form-group">
             <label>Stock Mínimo Alerta</label>
             <input type="number" id="prodMinStock" class="form-control" min="1" value="5" required>
@@ -182,6 +219,8 @@
             <input type="number" id="prodStock" class="form-control" min="0" required placeholder="10">
           </div>
         </div>
+
+        <!-- Botones de Acción -->
         <div class="modal-footer">
           <button type="button" class="btn-secondary" onclick="closeModal('productModal')">Cancelar</button>
           <button type="submit" class="btn-primary">Guardar Producto</button>
