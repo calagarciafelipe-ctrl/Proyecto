@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Piñatería Super Fiestas - Gestor de Inventario</title>
+  <!-- Hoja de estilos específica -->
+  <link rel="stylesheet" href="gestor.css">
+</head>
+<body>
+
+  <!-- CARGA DEL HEADER GLOBAL -->
+  <div id="header-container"></div>
+
+  <!-- PANEL PRINCIPAL DEL GESTOR -->
+  <div class="inventory-app">
+    
+    <!-- BARRA SUPERIOR DE ACCIONES -->
+    <header class="inventory-header">
+      <div>
+        <h1>🪅 Panel de Control de Inventario</h1>
+        <p>Gestión de existencias, entradas, salidas y alertas de stock</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-secondary" onclick="openMovementModal('entrada')">➕ Registrar Entrada</button>
+        <button class="btn-danger" onclick="openMovementModal('salida')">➖ Registrar Salida</button>
+        <button class="btn-primary" onclick="openProductModal()">📦 Nuevo Producto</button>
+      </div>
+    </header>
+
+    <!-- TARJETAS DE RESUMEN DE STOCK -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-title">Total Referencias</div>
+        <div class="metric-value" id="metricTotalProducts">0</div>
+        <span class="metric-subtitle">Productos en catálogo</span>
+      </div>
+
+      <div class="metric-card alert">
+        <div class="metric-title">Stock Crítico</div>
+        <div class="metric-value" id="metricLowStock">0</div>
+        <span class="metric-subtitle">Requieren pedido inmediato</span>
+      </div>
+
+      <div class="metric-card success">
+        <div class="metric-title">Entradas del Mes</div>
+        <div class="metric-value" id="metricInMovements">0</div>
+        <span class="metric-subtitle">Unidades ingresadas</span>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-title">Salidas del Mes</div>
+        <div class="metric-value" id="metricOutMovements">0</div>
+        <span class="metric-subtitle">Unidades despachadas</span>
+      </div>
+    </section>
+
+    <!-- PESTAÑAS DE NAVEGACIÓN INTERNA -->
+    <div class="section-tabs">
+      <button id="tabStock" class="tab-btn active" onclick="switchSection('stockSection')">📦 Stock Actual</button>
+      <button id="tabMovements" class="tab-btn" onclick="switchSection('movementsSection')">📋 Historial de Movimientos</button>
+      <button id="tabAlerts" class="tab-btn" onclick="switchSection('alertsSection')">⚠️ Reabastecimiento urgente</button>
+    </div>
+
+    <!-- SECCIÓN 1: TABLA DE STOCK ACTUAL -->
+    <section id="stockSection" class="tab-content">
+      <div class="filter-bar">
+        <input type="text" id="searchInput" class="form-control" placeholder="🔍 Buscar por nombre o referencia..." oninput="renderStockTable()">
+        <select id="categoryFilter" class="form-control" onchange="renderStockTable()">
+          <option value="Todas">Todas las Categorías</option>
+          <option value="Piñatas">Piñatas</option>
+          <option value="Rellenos & Dulces">Rellenos & Dulces</option>
+          <option value="Globos & Arreglos">Globos & Arreglos</option>
+          <option value="Vajilla & Desechables">Vajilla & Desechables</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Cód.</th>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Precio Unit.</th>
+              <th>Stock Mínimo</th>
+              <th>Stock Actual</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="stockTableBody">
+            <!-- Render dinámico JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: HISTORIAL DE MOVIMIENTOS -->
+    <section id="movementsSection" class="tab-content" style="display: none;">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha/Hora</th>
+              <th>Tipo</th>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Responsable</th>
+              <th>Observación</th>
+            </tr>
+          </thead>
+          <tbody id="movementsTableBody">
+            <!-- Render dinámico JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 3: ALERTAS Y REABASTECIMIENTO -->
+    <section id="alertsSection" class="tab-content" style="display: none;">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Stock Actual</th>
+              <th>Stock Sugerido</th>
+              <th>Unidades a Pedir</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="alertsTableBody">
+            <!-- Render dinámico JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- MODAL 1: CREAR/EDITAR PRODUCTO -->
+  <div id="productModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalProductTitle">Nuevo Producto</h3>
+        <button class="btn-close" onclick="closeModal('productModal')">✕</button>
+      </div>
+      <form onsubmit="saveProduct(event)">
+        <input type="hidden" id="prodId">
+        <div class="form-group">
+          <label>Nombre del Producto</label>
+          <input type="text" id="prodName" class="form-control" required placeholder="Ej. Piñata Tambor de Mickey">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Categoría</label>
+            <select id="prodCategory" class="form-control" required>
+              <option value="Piñatas">Piñatas</option>
+              <option value="Rellenos & Dulces">Rellenos & Dulces</option>
+              <option value="Globos & Arreglos">Globos & Arreglos</option>
+              <option value="Vajilla & Desechables">Vajilla & Desechables</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Icono / Emoji</label>
+            <input type="text" id="prodIcon" class="form-control" value="🪅" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Precio (COP)</label>
+            <input type="number" id="prodPrice" class="form-control" min="0" required placeholder="35000">
+          </div>
+          <div class="form-group">
+            <label>Stock Mínimo Alerta</label>
+            <input type="number" id="prodMinStock" class="form-control" min="1" value="5" required>
+          </div>
+          <div class="form-group">
+            <label>Stock Inicial</label>
+            <input type="number" id="prodStock" class="form-control" min="0" required placeholder="10">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeModal('productModal')">Cancelar</button>
+          <button type="submit" class="btn-primary">Guardar Producto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: REGISTRAR ENTRADA/SALIDA -->
+  <div id="movementModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="movementModalTitle">Registrar Movimiento</h3>
+        <button class="btn-close" onclick="closeModal('movementModal')">✕</button>
+      </div>
+      <form onsubmit="saveMovement(event)">
+        <input type="hidden" id="movementType">
+        <div class="form-group">
+          <label>Seleccionar Producto</label>
+          <select id="movementProductSelect" class="form-control" required>
+            <!-- Carga dinámica de opciones -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cantidad de Unidades</label>
+          <input type="number" id="movementQuantity" class="form-control" min="1" required placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Observaciones / Motivo</label>
+          <input type="text" id="movementNote" class="form-control" placeholder="Ej. Lote recibido de proveedor / Ajuste por daño">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeModal('movementModal')">Cancelar</button>
+          <button type="submit" id="btnSubmitMovement" class="btn-primary">Confirmar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="gestor.js"></script>
+</body>
+</html>

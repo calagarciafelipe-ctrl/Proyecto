@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Piñatería Super Fiestas</title>
+  <!-- Archivo CSS externo -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="gestor.css"
+</head>
+<body>
+
+  <div id="authContainer" class="auth-container">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <span class="brand-logo">🪅</span>
+        <h1>Piñatería Super Fiestas</h1>
+        <p>Todo para que tu fiesta sea inolvidable</p>
+        <div class="auth-brand">
+          <div class="auth-brand">
+</div>
+</div>
+      </div>
+
+      
+      <div class="auth-tabs">
+        <button id="tabLogin" class="tab-btn active" onclick="switchAuthTab('login')">Ingresar</button>
+        <button id="tabRegister" class="tab-btn" onclick="switchAuthTab('register')">Registrarse</button>
+    
+      </div>
+
+      
+      <form id="formLogin" onsubmit="handleAuth(event, 'login')">
+        <div class="form-group">
+          <label for="loginEmail">Correo Electrónico</label>
+          <input type="email" id="loginEmail" class="form-control" placeholder="cliente@fiesta.com" required value="cliente@fiesta.com">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Contraseña</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required value="123456">
+        </div>
+        <button type="submit" class="btn-primary">Iniciar Sesión</button>
+      </form>
+
+     
+      <form id="formRegister" style="display: none;" onsubmit="handleAuth(event, 'register')">
+        <div class="form-group">
+          <label for="regName">Nombre Completo</label>
+          <input type="text" id="regName" class="form-control" placeholder="Ana María Gómez" required>
+        </div>
+        <div class="form-group">
+          <label for="regEmail">Correo Electrónico</label>
+          <input type="email" id="regEmail" class="form-control" placeholder="ana@fiesta.com" required>
+        </div>
+        <div class="form-group">
+          <label for="regPassword">Contraseña</label>
+          <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-primary">Crear Cuenta</button>
+      </form>
+
+      <button class="btn-demo" onclick="loginDemo()">🚀 Entrar Modo Demostración</button>
+
+      <div class="auth-brand">
+  <p>Inicia sesión o <a href="admin.html" style="color: #E60067; font-weight: bold;">Ingresar como admin</a></p>
+  <p>Inicia sesión o <a href="gestor.html" style="color: #5485a5; font-weight: bold;">Ingresar como gestor</a></p>
+</div>
+    </div>
+  </div>
+
+  
+  <div id="appScreen" class="app-screen">
+    
+
+    <header class="navbar">
+      <div class="nav-container">
+        <a href="#" class="nav-logo">
+          <span>🪅</span> Piñatería Super Fiestas
+        </a>
+        
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Buscar piñatas, globos, dulces..." oninput="filterProducts()">
+        </div>
+
+        <div class="nav-actions">
+          <div class="user-profile">
+            <span>👋 Hola, <strong id="userNameDisplay">Usuario</strong></span>
+            <button class="btn-logout" onclick="logout()">(Salir)</button>
+          </div>
+
+          <button class="icon-btn" onclick="toggleCart()">
+            🛒
+            <span id="cartBadge" class="badge">0</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+   
+    <main class="main-container">
+      
+      
+      <section class="hero-banner">
+        <div class="hero-text">
+          <h2>¡Combos Cumpleañeros! 🎉</h2>
+          <p>Llévate el paquete completo de piñata + globos + dulcería con un 20% de descuento este mes.</p>
+          <button class="hero-btn" onclick="filterCategory('Piñatas')">Ver Promociones</button>
+        </div>
+        <div class="hero-icon">🥳</div>
+      </section>
+
+      
+      <div class="categories-bar">
+        <button class="cat-chip active" onclick="filterCategory('Todas', this)">Todas</button>
+        <button class="cat-chip" onclick="filterCategory('Piñatas', this)">🪅 Piñatas</button>
+        <button class="cat-chip" onclick="filterCategory('Globos', this)">🎈 Globos</button>
+        <button class="cat-chip" onclick="filterCategory('Dulcería', this)">🍬 Dulcería</button>
+        <button class="cat-chip" onclick="filterCategory('Desechables', this)">🥳 Desechables</button>
+      </div>
+
+      
+      <h3 class="section-title">Catálogo Destacado</h3>
+      <div class="products-grid" id="productsGrid">
+        
+      </div>
+    </main>
+
+  
+    <footer class="footer">
+      <p>© 2026 Piñatería Mágica - Todos los derechos reservados.</p>
+    </footer>
+  </div>
+
+  
+  <div id="cartOverlay" class="cart-overlay" onclick="toggleCart()"></div>
+  <aside id="cartDrawer" class="cart-drawer">
+    <div class="cart-header">
+      <h3>Tu Carrito (🛒)</h3>
+      <button class="icon-btn" onclick="toggleCart()">✕</button>
+    </div>
+    
+    <div class="cart-items" id="cartItems">
+    
+    </div>
+
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span id="cartTotalAmount">$0 COP</span>
+      </div>
+      <button class="btn-primary" onclick="checkout()">Finalizar Pedido</button>
+    </div>
+  </aside>
+
+  
+  <script src="script.js"></script>
+  <script src="admin.js"></script>
+  <script src="gestor.js"></script>
+</body>
+</html>
