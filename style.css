@@ -22,6 +22,7 @@
 }
 
 body {
+  
   background-color: var(--bg-light);
   color: var(--text-main);
   overflow-x: hidden;
@@ -44,6 +45,16 @@ button, input, select {
 }
 
 .auth-card {
+  background-image: url("piñata.jpg"); /* Ruta de tu imagen */
+    background-size: cover; /* Ajusta la imagen para cubrir toda la pantalla */
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: rgba(184, 92, 245, 1); /* Color de fondo alternativo mientras carga la imagen */
+
   background: var(--card-bg);
   width: 100%;
   max-width: 440px;
