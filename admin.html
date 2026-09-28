@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Piñatería Super Fiestas - Panel de Administración</title>
+  <!-- Chart.js para las gráficas de ventas e inventario -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Hoja de estilos externa -->
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- ================= LOGIN ADMINISTRATIVO ================= -->
+  <div id="adminAuthContainer" class="auth-container">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <span class="brand-logo">🎉</span>
+        <h1>Super Fiestas Admin</h1>
+        <p>Sistema de Gestión de Inventario y Ventas</p>
+      </div>
+
+      <form onsubmit="handleAdminAuth(event)">
+        <div class="form-group">
+          <label for="adminEmail">Correo Administrativo</label>
+          <input type="email" id="adminEmail" class="form-control" placeholder="admin@superfiestas.com" value="admin@superfiestas.com" required>
+        </div>
+        <div class="form-group">
+          <label for="adminPass">Contraseña</label>
+          <input type="password" id="adminPass" class="form-control" placeholder="••••••••" value="123456" required>
+        </div>
+        <div class="form-group">
+          <label for="adminRole">Rol de Acceso</label>
+          <select id="adminRole" class="form-control">
+            <option value="Administrador General">Administrador General</option>
+            <option value="Gestor de Inventario">Gestor de Inventario</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-primary">Ingresar al Panel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= DASHBOARD ADMINISTRATIVO ================= -->
+  <div id="adminApp" class="admin-app">
+    
+    <!-- Sidebar / Menú Lateral -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span>🎉</span> Super Fiestas
+      </div>
+
+      <ul class="sidebar-menu">
+        <li>
+          <button class="menu-item active" onclick="switchSection('dashboardSection', this)">
+            <span>📊</span> Dashboard
+          </button>
+        </li>
+        <li>
+          <button class="menu-item" onclick="switchSection('inventorySection', this)">
+            <span>🪅</span> Inventario
+          </button>
+        </li>
+        <li>
+          <button class="menu-item" onclick="switchSection('ordersSection', this)">
+            <span>📦</span> Pedidos
+          </button>
+        </li>
+        <li>
+          <button class="menu-item" onclick="switchSection('customersSection', this)">
+            <span>👥</span> Clientes
+          </button>
+        </li>
+      </ul>
+
+      <div class="user-badge">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="user-info">
+          <strong id="adminUserName">Admin User</strong>
+          <span id="adminRoleName">Administrador</span>
+        </div>
+        <button class="btn-logout" title="Cerrar sesión" onclick="adminLogout()">🚪</button>
+      </div>
+    </aside>
+
+    <!-- Área Principal de Contenido -->
+    <main class="main-content">
+      
+      <!-- Topbar Header -->
+      <header class="header">
+        <h2 id="sectionTitle">Panel Principal</h2>
+        <div class="top-actions">
+          <span class="badge-stock" id="stockAlertBadge">⚠️ 2 Bajo Stock</span>
+          <button class="btn-primary-sm" onclick="openProductModal()">+ Nuevo Producto</button>
+        </div>
+      </header>
+
+      <!-- SECCIÓN 1: DASHBOARD -->
+      <section id="dashboardSection" class="content-section">
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Ventas de Hoy</span>
+              <span class="metric-icon">💰</span>
+            </div>
+            <div class="metric-value" id="metricSales">$ 485.000</div>
+            <div class="metric-trend trend-up">▲ 14% vs. ayer</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Pedidos Pendientes</span>
+              <span class="metric-icon">📦</span>
+            </div>
+            <div class="metric-value" id="metricOrders">6</div>
+            <div class="metric-trend trend-down">3 por despachar hoy</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Productos Registrados</span>
+              <span class="metric-icon">🪅</span>
+            </div>
+            <div class="metric-value" id="metricProducts">0</div>
+            <div class="metric-trend">4 categorías activa</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Alertas de Stock</span>
+              <span class="metric-icon">⚠️</span>
+            </div>
+            <div class="metric-value" id="metricAlerts" style="color: var(--danger);">2</div>
+            <div class="metric-trend" style="color: var(--danger);">Requieren reabastecimiento</div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3>Ventas por Categoría (COP)</h3>
+            <canvas id="categoryChart"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Estado del Inventario</h3>
+            <canvas id="stockChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 2: INVENTARIO (CRUD) -->
+      <section id="inventorySection" class="content-section" style="display: none;">
+        <div class="filter-bar">
+          <div class="search-box">
+            <input type="text" id="invSearch" placeholder="Buscar por nombre o referencia..." oninput="renderInventoryTable()">
+          </div>
+          <select id="invCatFilter" class="form-control" style="width: auto;" onchange="renderInventoryTable()">
+            <option value="Todas">Todas las Categorías</option>
+            <option value="Piñatas">Piñatas</option>
+            <option value="Rellenos & Dulces">Rellenos & Dulces</option>
+            <option value="Globos & Arreglos">Globos & Arreglos</option>
+            <option value="Vajilla & Desechables">Vajilla & Desechables</option>
+          </select>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th>Precio (COP)</th>
+                <th>Stock Actual</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody">
+              <!-- Renderizado dinámico vía script.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 3: PEDIDOS -->
+      <section id="ordersSection" class="content-section" style="display: none;">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>N° Pedido</th>
+                <th>Cliente</th>
+                <th>Detalle de Productos</th>
+                <th>Total (COP)</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <!-- Renderizado dinámico -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 4: CLIENTES -->
+      <section id="customersSection" class="content-section" style="display: none;">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Contacto</th>
+                <th>Pedidos Realizados</th>
+                <th>Total Compras</th>
+                <th>Nivel</th>
+              </tr>
+            </thead>
+            <tbody id="customersTableBody">
+              <!-- Renderizado dinámico -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= MODAL CREAR / EDITAR PRODUCTO ================= -->
+  <div id="productModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle">Nuevo Producto</h3>
+        <button class="btn-logout" onclick="closeProductModal()">✕</button>
+      </div>
+
+      <form id="productForm" onsubmit="saveProduct(event)">
+        <input type="hidden" id="prodId">
+        
+        <div class="form-group">
+          <label for="prodName">Nombre del Producto</label>
+          <input type="text" id="prodName" class="form-control" placeholder="Ej: Piñata Tambor Tamborilera" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label for="prodCategory">Categoría</label>
+            <select id="prodCategory" class="form-control" required>
+              <option value="Piñatas">Piñatas</option>
+              <option value="Rellenos & Dulces">Rellenos & Dulces</option>
+              <option value="Globos & Arreglos">Globos & Arreglos</option>
+              <option value="Vajilla & Desechables">Vajilla & Desechables</option>
+            </select>
+          </div>
+          <div class="form-group" style="width: 100px;">
+            <label for="prodIcon">Emoji / Icono</label>
+            <input type="text" id="prodIcon" class="form-control" value="🪅" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label for="prodPrice">Precio de Venta (COP)</label>
+            <input type="number" id="prodPrice" class="form-control" placeholder="35000" min="0" required>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label for="prodStock">Unidades en Stock</label>
+            <input type="number" id="prodStock" class="form-control" placeholder="10" min="0" required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-demo" onclick="closeProductModal()" style="margin:0; width:auto;">Cancelar</button>
+          <button type="submit" class="btn-primary" style="width:auto; padding: 10px 20px;">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- NOTIFICACIONES TOAST -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Script JS externo -->
+  <script src="admin.js"></script>
+</body>
+</html>
